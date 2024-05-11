@@ -8,7 +8,7 @@ public class Sorting {
         ArrayList<ArrayList<Integer>> sorted = new ArrayList<>();
         ArrayList<ArrayList<Integer>> sortedReversed = new ArrayList<>();
 
-        int[] itemsPerDay = {1000, 5000, 10000, 50000, 75000, 100000};
+        int[] itemsPerDay = {1000, 5000, 10000, 50000, 75000, 100000, 500000};
         Random random = new Random();
         for (int day = 0; day < itemsPerDay.length; day++) {
             ArrayList<Integer> currDay = new ArrayList<>();

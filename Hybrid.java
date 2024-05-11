@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class Sorting {
+public class Hybrid {
+    private static final int THRESHOLD = 30; // Switch to Insertion Sort when segment size <= 30
+
     public static void main(String[] args) {
         ArrayList<ArrayList<Integer>> week = new ArrayList<>();
         ArrayList<ArrayList<Integer>> sorted = new ArrayList<>();
@@ -17,7 +19,7 @@ public class Sorting {
             }
             week.add(currDay);
             ArrayList<Integer> sortedDay = new ArrayList<>(currDay);
-            quickSort(sortedDay, 0, sortedDay.size() - 1);
+            hybridSort(sortedDay, 0, sortedDay.size() - 1);
             sorted.add(sortedDay);
 
             ArrayList<Integer> reversedDay = new ArrayList<>(sortedDay);
@@ -34,40 +36,53 @@ public class Sorting {
         System.out.println("Testing " + description + " arrays:");
         for (ArrayList<Integer> array : data) {
             long startTime = System.currentTimeMillis();
-            quickSort(array, 0, array.size() - 1);
+            hybridSort(array, 0, array.size() - 1);
             long endTime = System.currentTimeMillis();
             System.out.println("Sorted " + array.size() + " elements in " + (endTime - startTime) + " ms");
         }
     }
 
-    public static void quickSort(ArrayList<Integer> list, int first, int last) {
+    public static void hybridSort(ArrayList<Integer> list, int first, int last) {
         while (first < last) {
-            int pivotIndex = partition(list, first, last);
-            if (pivotIndex - first < last - pivotIndex) {
-                quickSort(list, first, pivotIndex - 1);
-                first = pivotIndex + 1;
+            if (last - first + 1 <= THRESHOLD) {
+                insertionSort(list, first, last);
+                break; // Exit after sorting with insertion sort
             } else {
-                quickSort(list, pivotIndex + 1, last);
-                last = pivotIndex - 1;
+                int pivotIndex = partition(list, first, last);
+                if (pivotIndex - first < last - pivotIndex) {
+                    hybridSort(list, first, pivotIndex - 1);
+                    first = pivotIndex + 1; // Continue in the loop with the second half
+                } else {
+                    hybridSort(list, pivotIndex + 1, last);
+                    last = pivotIndex - 1; // Continue in the loop with the first half
+                }
             }
         }
     }
-    
+
+    private static void insertionSort(ArrayList<Integer> list, int first, int last) {
+        for (int i = first + 1; i <= last; i++) {
+            int current = list.get(i);
+            int j = i - 1;
+            while (j >= first && list.get(j) > current) {
+                list.set(j + 1, list.get(j));
+                j--;
+            }
+            list.set(j + 1, current);
+        }
+    }
+
     private static int partition(ArrayList<Integer> list, int first, int last) {
-        int pivotValue = list.get(last);
-        int pivotIndex = first - 1;
-        for (int i = first; i < last; i++) {
-            if (list.get(i) < pivotValue) {
-                pivotIndex++;
-                Integer temp = list.get(pivotIndex);
-                list.set(pivotIndex, list.get(i));
-                list.set(i, temp);
+        int pivot = list.get(last);  // Choosing the last element as pivot
+        int i = first - 1;
+
+        for (int j = first; j < last; j++) {
+            if (list.get(j) <= pivot) {
+                i++;
+                Collections.swap(list, i, j);
             }
         }
-        pivotIndex++;
-        Integer temp = list.get(pivotIndex);
-        list.set(pivotIndex, list.get(last));
-        list.set(last, temp);
-        return pivotIndex;
+        Collections.swap(list, i + 1, last);
+        return i + 1;
     }
 }
